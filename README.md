@@ -112,7 +112,7 @@ PORT=9090 INTERVAL_SEC=10 ./agent
 
 ```json
 {
-  "interval_sec": 5,
+  "interval_sec": 30,
   "samples": [...]
 }
 ```
@@ -143,26 +143,6 @@ sudo systemctl status agent.service
 
 # ログ確認
 journalctl -u agent.service -f
-```
-
-### Windows (Windows Service)
-
-```powershell
-# ビルド
-go build -o agent.exe ./cmd/agent
-
-# 管理者権限でPowerShellを開く
-# サービスをインストール
-.\scripts\install-service.ps1 install
-
-# サービスを起動
-.\scripts\install-service.ps1 start
-
-# サービスのステータス確認
-Get-Service WorkerMonitorAgent
-
-# アンインストール
-.\scripts\install-service.ps1 uninstall
 ```
 
 ## GPU サポート
