@@ -4,11 +4,11 @@
 
 ## 特徴
 
-- 🖥️ **マルチプラットフォーム**: Windows / Linux 対応
-- 🎮 **GPU対応**: NVIDIA / AMD GPU をサポート
-- 📊 **リアルタイム可視化**: モダンなWeb UIでメトリクスを表示
-- 🔄 **軽量設計**: 単一バイナリ、DB不要
-- 🚀 **サービス化**: systemd / Windows Service として常駐可能
+- **マルチプラットフォーム**: Windows / Linux 対応
+- **GPU対応**: NVIDIA / AMD GPU をサポート
+- **リアルタイム可視化**: モダンなWeb UIでメトリクスを表示
+- **軽量設計**: 単一バイナリ、DB不要
+- **サービス化**: systemd / Windows Service として常駐可能
 
 ## クイックスタート
 
@@ -80,27 +80,28 @@ PORT=9090 INTERVAL_SEC=10 ./agent
 
 ```json
 {
-  "timestamp": "2026-02-05T06:45:00Z",
+  "timestamp": "2026-02-05T07:48:11.299145233+09:00",
   "cpu": {
-    "model": "Intel Core i7-9700K",
-    "cores": 8,
-    "threads": 8,
-    "usage": 0.45,
+    "model": "AMD Ryzen 5 3500 6-Core Processor",
+    "cores": 6,
+    "threads": 6,
+    "usage": 0.112225006961855,
+    "load_avg": [0.53, 0.78, 0.85],
     "frequency_mhz": 3600
   },
   "ram": {
-    "total_mb": 16384,
-    "used_mb": 8192,
-    "free_mb": 8192,
-    "usage": 0.5
+    "total_mb": 15909,
+    "used_mb": 8982,
+    "free_mb": 6555,
+    "usage": 0.564581093453417
   },
   "gpu": {
-    "vendor": "nvidia",
-    "model": "NVIDIA GeForce RTX 3080",
-    "util": 0.75,
-    "temperature_c": 65,
-    "vram_total_mb": 10240,
-    "vram_used_mb": 7680
+    "vendor": "amd",
+    "model": "AMD Radeon RX 6600 XT",
+    "util": 0,
+    "temperature_c": 36,
+    "vram_total_mb": 8176,
+    "vram_used_mb": 87
   }
 }
 ```
@@ -174,47 +175,3 @@ Get-Service WorkerMonitorAgent
 
 - **Linux**: `rocm-smi` が必要（ROCm インストール時に含まれる）
 - **Windows**: WMI経由で基本情報のみ取得（使用率は制限あり）
-
-GPU が検出されない場合、GPU メトリクスは省略されます。
-
-## 開発
-
-### プロジェクト構造
-
-```
-PC-Stats-API/
-├── cmd/agent/          # メインエントリーポイント
-├── internal/
-│   ├── collector/      # メトリクス収集
-│   ├── storage/        # リングバッファ
-│   ├── api/           # HTTP API
-│   └── config/        # 設定管理
-├── web/               # Web UI
-└── scripts/           # サービス化スクリプト
-```
-
-### テスト
-
-```bash
-# ビルドテスト
-go build ./...
-
-# 実行テスト
-go run ./cmd/agent
-
-# API テスト
-curl http://localhost:8080/health
-curl http://localhost:8080/metrics/latest
-curl http://localhost:8080/metrics/history?seconds=60
-```
-
-## ライセンス
-
-MIT License
-
-## 今後の拡張予定
-
-- [ ] Prometheus exporter
-- [ ] Disk / Network メトリクス
-- [ ] SQLite による履歴永続化
-- [ ] Push モード（中央サーバーへの送信）
