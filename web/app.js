@@ -1,6 +1,6 @@
 // Configuration
 const API_BASE = window.location.origin;
-const UPDATE_INTERVAL = 5000; // 5 seconds
+const UPDATE_INTERVAL = 30000; // 30 seconds
 let currentTimeRange = 300; // 5 minutes default
 let chart = null;
 

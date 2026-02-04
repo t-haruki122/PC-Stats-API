@@ -16,7 +16,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		Port:        getEnv("PORT", "8080"),
-		IntervalSec: getEnvInt("INTERVAL_SEC", 5),
+		IntervalSec: getEnvInt("INTERVAL_SEC", 30),
 		HistorySize: getEnvInt("HISTORY_SIZE", 720),
 	}
 }
