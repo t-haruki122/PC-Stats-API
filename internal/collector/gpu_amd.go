@@ -23,50 +23,70 @@ func (a *amdCollector) CollectGPU() (*GPUMetrics, error) {
 }
 
 func (a *amdCollector) collectLinux() (*GPUMetrics, error) {
-	// rocm-smi --showuse --showtemp --showmeminfo vram
+	metrics := &GPUMetrics{
+		Vendor: "amd",
+		Model:  "AMD GPU", // Default
+	}
+
+	// Get GPU model name
+	modelCmd := exec.Command("rocm-smi", "--showproductname")
+	if modelOutput, err := modelCmd.Output(); err == nil {
+		lines := strings.Split(string(modelOutput), "\n")
+		for _, line := range lines {
+			// Look for "GPU[0]          : Card Series:          AMD Radeon RX 6600 XT"
+			if strings.Contains(line, "GPU[0]") && strings.Contains(line, "Card Series:") {
+				// Extract card series name
+				parts := strings.Split(line, "Card Series:")
+				if len(parts) > 1 {
+					metrics.Model = strings.TrimSpace(parts[1])
+				}
+			}
+		}
+	}
+
+	// Get usage, temperature, and VRAM info
 	cmd := exec.Command("rocm-smi", "--showuse", "--showtemp", "--showmeminfo", "vram")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("rocm-smi failed: %w", err)
 	}
 
-	metrics := &GPUMetrics{
-		Vendor: "amd",
-	}
-
 	lines := strings.Split(string(output), "\n")
 
-	// Parse output (simplified - actual parsing depends on rocm-smi format)
 	for _, line := range lines {
-		// GPU use percentage
-		if strings.Contains(line, "GPU use") {
-			re := regexp.MustCompile(`(\d+)%`)
+		// GPU use percentage: "GPU[0]          : GPU use (%): 0"
+		if strings.Contains(line, "GPU use (%)") {
+			re := regexp.MustCompile(`GPU use \(%\):\s*(\d+)`)
 			if matches := re.FindStringSubmatch(line); len(matches) > 1 {
 				util, _ := strconv.ParseFloat(matches[1], 64)
 				metrics.Util = util / 100.0
 			}
 		}
-		// Temperature
-		if strings.Contains(line, "Temperature") {
-			re := regexp.MustCompile(`(\d+\.?\d*)c`)
+
+		// Temperature (edge): "GPU[0]          : Temperature (Sensor edge) (C): 37.0"
+		if strings.Contains(line, "Temperature (Sensor edge)") {
+			re := regexp.MustCompile(`Temperature \(Sensor edge\) \(C\):\s*([\d.]+)`)
 			if matches := re.FindStringSubmatch(line); len(matches) > 1 {
 				temp, _ := strconv.ParseFloat(matches[1], 64)
 				metrics.TemperatureC = temp
 			}
 		}
-		// VRAM
-		if strings.Contains(line, "VRAM Total") {
-			re := regexp.MustCompile(`(\d+)`)
+
+		// VRAM Total (in Bytes): "GPU[0]          : VRAM Total Memory (B): 8573157376"
+		if strings.Contains(line, "VRAM Total Memory (B)") {
+			re := regexp.MustCompile(`VRAM Total Memory \(B\):\s*(\d+)`)
 			if matches := re.FindStringSubmatch(line); len(matches) > 1 {
-				vram, _ := strconv.ParseUint(matches[1], 10, 64)
-				metrics.VRAMTotalMB = vram
+				vramBytes, _ := strconv.ParseUint(matches[1], 10, 64)
+				metrics.VRAMTotalMB = vramBytes / 1024 / 1024 // Convert bytes to MB
 			}
 		}
-		if strings.Contains(line, "VRAM Used") {
-			re := regexp.MustCompile(`(\d+)`)
+
+		// VRAM Used (in Bytes): "GPU[0]          : VRAM Total Used Memory (B): 91881472"
+		if strings.Contains(line, "VRAM Total Used Memory (B)") {
+			re := regexp.MustCompile(`VRAM Total Used Memory \(B\):\s*(\d+)`)
 			if matches := re.FindStringSubmatch(line); len(matches) > 1 {
-				vram, _ := strconv.ParseUint(matches[1], 10, 64)
-				metrics.VRAMUsedMB = vram
+				vramBytes, _ := strconv.ParseUint(matches[1], 10, 64)
+				metrics.VRAMUsedMB = vramBytes / 1024 / 1024 // Convert bytes to MB
 			}
 		}
 	}
