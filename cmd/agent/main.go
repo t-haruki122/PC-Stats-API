@@ -33,8 +33,8 @@ func main() {
 
 	go collectMetrics(ctx, systemCollector, ringBuffer, cfg.IntervalSec)
 
-	// Start HTTP server
-	server := api.NewServer(ringBuffer, cfg.IntervalSec)
+	// Start HTTP server (with embedded web files)
+	server := api.NewServer(ringBuffer, cfg.IntervalSec, GetWebFS())
 
 	// Setup graceful shutdown
 	go func() {

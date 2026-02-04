@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"io/fs"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,14 +15,16 @@ type Server struct {
 	storage  *storage.RingBuffer
 	interval int
 	mux      *http.ServeMux
+	webFS    fs.FS
 }
 
 // NewServer creates a new API server
-func NewServer(storage *storage.RingBuffer, intervalSec int) *Server {
+func NewServer(storage *storage.RingBuffer, intervalSec int, webFS fs.FS) *Server {
 	s := &Server{
 		storage:  storage,
 		interval: intervalSec,
 		mux:      http.NewServeMux(),
+		webFS:    webFS,
 	}
 
 	s.registerRoutes()
@@ -34,9 +37,9 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("/metrics/latest", s.handleLatest)
 	s.mux.HandleFunc("/metrics/history", s.handleHistory)
 
-	// Static files for Web UI
-	fs := http.FileServer(http.Dir("web"))
-	s.mux.Handle("/ui/", http.StripPrefix("/ui/", fs))
+	// Static files for Web UI (from embedded filesystem)
+	fileServer := http.FileServer(http.FS(s.webFS))
+	s.mux.Handle("/ui/", http.StripPrefix("/ui/", fileServer))
 	s.mux.HandleFunc("/", s.handleRoot)
 }
 
