@@ -110,7 +110,7 @@ async function fetchLatest() {
     try {
         const response = await fetch(`${API_BASE}/metrics/latest`);
         if (!response.ok) throw new Error('Failed to fetch latest metrics');
-        
+
         const data = await response.json();
         updateUI(data);
         updateStatus(true);
@@ -125,7 +125,7 @@ async function fetchHistory() {
     try {
         const response = await fetch(`${API_BASE}/metrics/history?seconds=${currentTimeRange}`);
         if (!response.ok) throw new Error('Failed to fetch history');
-        
+
         const data = await response.json();
         updateChart(data.samples);
     } catch (error) {
@@ -140,15 +140,17 @@ function updateUI(data) {
     document.getElementById('cpuModel').textContent = data.cpu.model || '-';
     document.getElementById('cpuCores').textContent = data.cpu.cores || '-';
     document.getElementById('cpuThreads').textContent = data.cpu.threads || '-';
-    
+
     if (data.cpu.frequency_mhz) {
         document.getElementById('cpuFreqRow').style.display = 'flex';
         document.getElementById('cpuFreq').textContent = `${data.cpu.frequency_mhz.toFixed(0)} MHz`;
     }
-    
+
     if (data.cpu.load_avg && data.cpu.load_avg.length > 0) {
         document.getElementById('cpuLoadRow').style.display = 'flex';
-        document.getElementById('cpuLoad').textContent = data.cpu.load_avg.map(l => l.toFixed(2)).join(', ');
+        const [load1, load5, load15] = data.cpu.load_avg;
+        document.getElementById('cpuLoad').textContent =
+            `1分: ${load1.toFixed(2)}, 5分: ${load5.toFixed(2)}, 15分: ${load15.toFixed(2)}`;
     }
 
     // RAM
@@ -163,15 +165,15 @@ function updateUI(data) {
         document.getElementById('gpuUsageBadge').textContent = `${(data.gpu.util * 100).toFixed(1)}%`;
         document.getElementById('gpuVendor').textContent = data.gpu.vendor.toUpperCase();
         document.getElementById('gpuModel').textContent = data.gpu.model || '-';
-        
+
         if (data.gpu.temperature_c) {
             document.getElementById('gpuTempRow').style.display = 'flex';
             document.getElementById('gpuTemp').textContent = `${data.gpu.temperature_c.toFixed(1)}°C`;
         }
-        
+
         if (data.gpu.vram_total_mb) {
             document.getElementById('gpuVramRow').style.display = 'flex';
-            document.getElementById('gpuVram').textContent = 
+            document.getElementById('gpuVram').textContent =
                 `${data.gpu.vram_used_mb.toLocaleString()} / ${data.gpu.vram_total_mb.toLocaleString()} MB`;
         }
 
@@ -208,7 +210,7 @@ function updateChart(samples) {
 function updateStatus(isConnected) {
     const statusDot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
-    
+
     if (isConnected) {
         statusDot.classList.remove('error');
         statusText.textContent = '接続中';
