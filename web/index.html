@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Monitoring Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Worker Monitoring Agent</h1>
+            <div class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">接続中...</span>
+            </div>
+        </header>
+
+        <div class="metrics-grid">
+            <!-- CPU Card -->
+            <div class="metric-card">
+                <div class="card-header">
+                    <h2>💻 CPU</h2>
+                    <span class="usage-badge" id="cpuUsageBadge">0%</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-info">
+                        <div class="info-row">
+                            <span class="label">モデル:</span>
+                            <span class="value" id="cpuModel">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">コア数:</span>
+                            <span class="value" id="cpuCores">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">スレッド数:</span>
+                            <span class="value" id="cpuThreads">-</span>
+                        </div>
+                        <div class="info-row" id="cpuFreqRow" style="display: none;">
+                            <span class="label">周波数:</span>
+                            <span class="value" id="cpuFreq">-</span>
+                        </div>
+                        <div class="info-row" id="cpuLoadRow" style="display: none;">
+                            <span class="label">負荷平均:</span>
+                            <span class="value" id="cpuLoad">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAM Card -->
+            <div class="metric-card">
+                <div class="card-header">
+                    <h2>🧠 RAM</h2>
+                    <span class="usage-badge" id="ramUsageBadge">0%</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-info">
+                        <div class="info-row">
+                            <span class="label">合計:</span>
+                            <span class="value" id="ramTotal">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">使用中:</span>
+                            <span class="value" id="ramUsed">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">空き:</span>
+                            <span class="value" id="ramFree">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GPU Card -->
+            <div class="metric-card" id="gpuCard" style="display: none;">
+                <div class="card-header">
+                    <h2>🎮 GPU</h2>
+                    <span class="usage-badge" id="gpuUsageBadge">0%</span>
+                </div>
+                <div class="card-body">
+                    <div class="metric-info">
+                        <div class="info-row">
+                            <span class="label">ベンダー:</span>
+                            <span class="value" id="gpuVendor">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">モデル:</span>
+                            <span class="value" id="gpuModel">-</span>
+                        </div>
+                        <div class="info-row" id="gpuTempRow" style="display: none;">
+                            <span class="label">温度:</span>
+                            <span class="value" id="gpuTemp">-</span>
+                        </div>
+                        <div class="info-row" id="gpuVramRow" style="display: none;">
+                            <span class="label">VRAM:</span>
+                            <span class="value" id="gpuVram">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-controls">
+                <h2>📊 履歴グラフ</h2>
+                <div class="time-selector">
+                    <button class="time-btn active" data-seconds="300">5分</button>
+                    <button class="time-btn" data-seconds="3600">1時間</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="usageChart"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            <p>最終更新: <span id="lastUpdate">-</span></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
