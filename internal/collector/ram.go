@@ -12,10 +12,15 @@ func (c *defaultRAMCollector) CollectRAM() (RAMMetrics, error) {
 		return RAMMetrics{}, err
 	}
 
+	// Use Available instead of Free for more accurate representation
+	// Available = Free + Buffers + Cached (reclaimable memory)
+	// This makes Total ≈ Used + Available
+	availableMB := v.Available / 1024 / 1024
+
 	metrics := RAMMetrics{
 		TotalMB: v.Total / 1024 / 1024,
 		UsedMB:  v.Used / 1024 / 1024,
-		FreeMB:  v.Free / 1024 / 1024,
+		FreeMB:  availableMB,
 		Usage:   v.UsedPercent / 100.0,
 	}
 
