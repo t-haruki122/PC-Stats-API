@@ -12,7 +12,7 @@ RestartSec=10
 
 # Environment variables
 Environment="PORT=8080"
-Environment="INTERVAL_SEC=5"
+Environment="INTERVAL_SEC=30"
 Environment="HISTORY_SIZE=720"
 
 # Logging
