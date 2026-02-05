@@ -128,7 +128,6 @@ go build -o agent ./cmd/agent
 # バイナリを配置
 sudo mkdir -p /opt/worker-agent
 sudo cp agent /opt/worker-agent/
-sudo cp -r web /opt/worker-agent/
 
 # サービスファイルをコピー
 sudo cp scripts/agent.service /etc/systemd/system/
