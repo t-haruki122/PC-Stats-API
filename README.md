@@ -130,18 +130,18 @@ sudo mkdir -p /opt/worker-agent
 sudo cp agent /opt/worker-agent/
 
 # サービスファイルをコピー
-sudo cp scripts/agent.service /etc/systemd/system/
+sudo cp scripts/pc-stats-agent.service /etc/systemd/system/
 
 # サービスを有効化・起動
 sudo systemctl daemon-reload
-sudo systemctl enable agent.service
-sudo systemctl start agent.service
+sudo systemctl enable pc-stats-agent.service
+sudo systemctl start pc-stats-agent.service
 
 # ステータス確認
-sudo systemctl status agent.service
+sudo systemctl status pc-stats-agent.service
 
 # ログ確認
-journalctl -u agent.service -f
+journalctl -u pc-stats-agent.service -f
 ```
 
 ## GPU サポート
